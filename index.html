@@ -274,7 +274,8 @@
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     document.getElementById(`teacher${group}_${index}`).scrollIntoView({
-                        behavior: 'smooth'
+                        behavior: 'smooth',
+                        block: 'center'  // 將教師行滾動至畫面中間
                     });
                 });
                 sideLinks.appendChild(link);
