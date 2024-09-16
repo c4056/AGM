@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教師年會</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        /* 頂部導航欄樣式 */
+        .navbar {
+            width: 100%;
+            background-color: #f4a261;
+            padding: 10px;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+        }
+        .navbar a {
+            text-decoration: none;
+            color: white;
+            margin-right: 10px;
+            padding: 10px;
+        }
+        .container {
+            margin-top: 50px;
+            display: flex;
+            width: 100%;
+        }
+        /* 側邊欄樣式 */
+        .side-links {
+            width: 200px;
+            background-color: #264653;
+            padding: 15px;
+            color: white;
+            position: sticky;
+            top: 60px;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+        .side-links a {
+            text-decoration: none;
+            color: white;
+            display: block;
+            padding: 8px 0;
+            cursor: pointer;
+        }
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f4a261;
+            color: white;
+        }
+        td {
+            text-align: center;
+        }
+        .tabs {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #264653;
+            color: white;
+            margin-right: 10px;
+        }
+        .tab.active {
+            background-color: #f4a261;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="#" id="homeLink">2024教師年會</a>
+        <a href="#" id="backToTop">回到最上面</a>
+    </div>
+
+    <div class="container">
+        <!-- 側邊導航欄 -->
+        <div class="side-links">
+            <h3>快速定位</h3>
+            <div id="sideLinksList"></div>
+        </div>
+
+        <!-- 內容區域 -->
+        <div class="content">
+            <div class="tabs">
+                <div class="tab" id="groupATab">甲組、黑客松</div>
+                <div class="tab" id="groupBTab">乙組</div>
+                <div class="tab" id="groupCTab">觀摩</div>
+            </div>
+            <h2 id="groupTitle">教師名單</h2>
+            <table id="teacherTable">
+                <thead>
+                    <tr>
+                        <th>恆星位置</th>
+                        <th>學校</th>
+                        <th>教師姓名</th>
+                        <th>A1觀摩</th>
+                        <th>A2競賽</th>
+                        <th>B黑客松</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 教師數據將被插入這裡 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- JsBarcode Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+    <script>
+        const defaultSchool = "測試學校";
+        let currentGroup = 'A';  // 當前顯示的組別 (甲組)
+
+        // 切換分頁
+        document.getElementById('groupATab').addEventListener('click', () => loadGroupData('A'));
+        document.getElementById('groupBTab').addEventListener('click', () => loadGroupData('B'));
+        document.getElementById('groupCTab').addEventListener('click', () => loadGroupData('C'));
+
+        // 載入甲組數據預設
+        loadGroupData('A');
+
+        function loadGroupData(group) {
+            currentGroup = group;
+            const title = group === 'A' ? '甲組、黑客松' : (group === 'B' ? '乙組' : '觀摩');
+            document.getElementById('groupTitle').textContent = `教師名單 (${title})`;
+
+            // 清除現有的數據
+            document.querySelector("#teacherTable tbody").innerHTML = '';
+            document.getElementById("sideLinksList").innerHTML = '';
+
+            // 根據組別載入相應的數據
+            const jsonFile = group === 'A' ? 'groupA.json' : (group === 'B' ? 'groupB.json' : 'groupC.json');
+            fetch(jsonFile)
+                .then(response => response.json())
+                .then(data => {
+                    populateTable(data, group);
+                    populateSideLinks(data, group);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // 將資料填充到表格中
+        function populateTable(data, group) {
+            const tbody = document.querySelector("#teacherTable tbody");
+            data.forEach((teacher, index) => {
+                const a1Barcode = teacher["A1觀摩編號"] ? teacher["A1觀摩編號"].toString() : "null";
+                const a2Barcode = teacher["A2競賽編號"] ? teacher["A2競賽編號"].toString() : "null";
+                const bHackathonBarcode = teacher["B黑客松編號"] ? teacher["B黑客松編號"].toString() : "null";
+
+                const row = document.createElement("tr");
+                row.id = `teacher${group}_${index}`;
+                row.innerHTML = `
+                    <td>${teacher["恆星位置"]}</td>
+                    <td>${teacher["學校"] || defaultSchool}</td>
+                    <td>${teacher["教師姓名"]}</td>
+                    <td><svg id="barcodeA1_${group}_${index}"></svg></td>
+                    <td><svg id="barcodeA2_${group}_${index}"></svg></td>
+                    <td><svg id="barcodeBH_${group}_${index}"></svg></td>
+                `;
+                tbody.appendChild(row);
+
+                // 生成條碼 (A1觀摩)
+                if (a1Barcode !== "null") {
+                    JsBarcode(`#barcodeA1_${group}_${index}`, a1Barcode, {
+                        format: "CODE128",
+                        width: 2,
+                        height: 30
+                    });
+                }
+
+                // 生成條碼 (A2競賽)
+                if (a2Barcode !== "null") {
+                    JsBarcode(`#barcodeA2_${group}_${index}`, a2Barcode, {
+                        format: "CODE128",
+                        width: 2,
+                        height: 30
+                    });
+                }
+
+                // 生成條碼 (B黑客松)
+                if (bHackathonBarcode !== "null") {
+                    JsBarcode(`#barcodeBH_${group}_${index}`, bHackathonBarcode, {
+                        format: "CODE128",
+                        width: 2,
+                        height: 30
+                    });
+                }
+            });
+        }
+
+        // 將教師名單顯示在側邊導航欄
+        function populateSideLinks(data, group) {
+            const sideLinks = document.getElementById("sideLinksList");
+            data.forEach((teacher, index) => {
+                const link = document.createElement("a");
+                link.textContent = teacher["教師姓名"];
+                link.href = `#teacher${group}_${index}`;
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.getElementById(`teacher${group}_${index}`).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+                sideLinks.appendChild(link);
+            });
+        }
+    </script>
+</body>
+</html>

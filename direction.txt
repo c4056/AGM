@@ -1,0 +1,15 @@
+先整理教師的編號和姓名
+格式
+
+編號    姓名
+1234    ＸＸＸ（中文）
+
+執行    export_csv.py
+
+在終端或命令提示字元中輸入以下指令（Python 3.x）：
+
+python -m http.server
+
+然後在瀏覽器中打開 http://localhost:8000/
+
+完成
