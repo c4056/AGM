@@ -217,6 +217,14 @@ td {
     background-color: #a57b5881;
 }
 
+/* 當前選中的教師行樣式 */
+.highlighted {
+    font-weight: bold;       /* 字體加粗 */
+    
+    background-color: #63828e29; /* 背景色改變 */
+    transition: background-color 0.3s ease, border 0.3s ease;
+}
+
 @media (min-width: 768px) {
     .container {
         flex-direction: row;
