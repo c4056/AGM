@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     newTitle.classList.remove('fade-out');
                     content.classList.add('fade-in');    
                     newTitle.classList.add('fade-in');
-                }, 335);  
+                }, 300);  // 等待100毫秒，以確保過渡效果生效
                 
             })
             .catch(error => console.error('Error fetching data:', error))
@@ -139,4 +139,41 @@ document.addEventListener('DOMContentLoaded', () => {
             sideLinks.appendChild(link);
         });
     }
+
+    function populateSideLinks(data, group) {
+    const sideLinks = document.getElementById("sideLinksList");
+    
+    // 追蹤當前加粗的教師行
+    let lastHighlightedRow = null;
+    
+    data.forEach((teacher, index) => {
+        const link = document.createElement("a");
+        link.textContent = teacher["教師姓名"];
+        link.href = `#teacher${group}_${index}`;
+        
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // 滾動至教師位置
+            const teacherRow = document.getElementById(`teacher${group}_${index}`);
+            teacherRow.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'  // 滾動至畫面中間
+            });
+            
+            // 移除之前加粗的行
+            if (lastHighlightedRow) {
+                lastHighlightedRow.classList.remove('highlighted');
+            }
+            
+            // 加粗當前行
+            teacherRow.classList.add('highlighted');
+            lastHighlightedRow = teacherRow;
+        });
+        
+        sideLinks.appendChild(link);
+
+        
+    });
+}
 });
