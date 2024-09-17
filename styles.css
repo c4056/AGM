@@ -71,9 +71,17 @@ body {
     text-decoration: none;
     color: white;
     display: block;
-    padding: 8px 0;
+    padding: 8px 10px;
     cursor: pointer;
     font-size: 16px;
+}
+
+/* 懸停顯示的顏色變化 */
+.side-links a:hover {
+    
+    background-color: #63828e; /* 懸停時變成橙色 */
+    color: #264653; /* 懸停時文字變色為深藍色 */
+    border-radius: 5px; /* 圓角邊框 */
 }
 
 /* 隱藏側邊欄的樣式 */
