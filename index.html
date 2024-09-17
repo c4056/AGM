@@ -4,134 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>教師年會</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column; /* 改變為列方向，適配手機屏幕 */
-        }
-
-        /* 頂部導航欄樣式 */
-        .navbar {
-            width: 100%;
-            background-color: #f4a261;
-            padding: 10px 30px; /* 調整左右的 padding，讓內容向左移動 */
-            position: fixed;
-            top: 0;
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            box-sizing: border-box;
-        }
-
-        .navbar a {
-            text-decoration: none;
-            color: white;
-            margin-right: 10px;
-            padding: 10px;
-            font-size: 16px;
-        }
-
-        .container {
-            margin-top: 60px;
-            display: flex;
-            width: 100%;
-            box-sizing: border-box;
-            flex-direction: column; /* 手機版佈局：先側邊欄，後內容 */
-        }
-
-        /* 側邊欄樣式 */
-        .side-links {
-            width: 100%; /* 寬度設置為100%適應小螢幕 */
-            background-color: #264653;
-            padding: 15px 40px;
-            color: white;
-            box-sizing: border-box;
-        }
-
-        .side-links h3 {
-            margin-top: 0;
-        }
-
-        .side-links a {
-            text-decoration: none;
-            color: white;
-            display: block;
-            padding: 8px 0;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .content {
-            flex-grow: 1;
-            padding: 20px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 14px; /* 縮小字體，適合小屏幕 */
-        }
-
-        table, th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-
-        th {
-            background-color: #f4a261;
-            color: white;
-        }
-
-        td {
-            text-align: center;
-        }
-
-        /* 標籤樣式 */
-        .tabs {
-            display: flex;
-            justify-content: flex-start;
-            margin-bottom: 20px;
-            flex-wrap: wrap; /* 手機版時允許標籤換行 */
-        }
-
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            background-color: #264653;
-            color: white;
-            margin-right: 10px;
-            margin-bottom: 10px; /* 增加底部距離，讓標籤在手機上換行時不擁擠 */
-            font-size: 16px;
-        }
-
-        .tab.active {
-            background-color: #f4a261;
-        }
-
-        /* 手機適配 */
-        @media (min-width: 768px) {
-            .container {
-                flex-direction: row; /* 桌面版佈局：側邊欄和內容並排 */
-            }
-
-            .side-links {
-                width: 200px;
-                height: calc(100vh - 60px);
-                position: sticky;
-                top: 60px;
-                overflow-y: auto;
-            }
-        }
-        #backToTop {
-    font-weight: bold; /* 讓文字加粗 */
-}
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="navbar">
@@ -141,17 +14,18 @@
 
     <div class="container">
         <!-- 側邊導航欄 -->
-        <div class="side-links">
+        <div class="side-links" id="sideLinks">
+            <div class="toggle-btn" id="toggleBtn">隱藏老師列表</div>
             <h3>快速定位</h3>
             <div id="sideLinksList"></div>
         </div>
 
         <!-- 內容區域 -->
         <div class="content">
-            <div class="tabs">
-                <div class="tab" id="groupATab">甲組、黑客松</div>
-                <div class="tab" id="groupBTab">乙組</div>
-                <div class="tab" id="groupCTab">觀摩</div>
+            <div class="button-row">
+                <div class="btn" id="groupATab">甲組、黑客松</div>
+                <div class="btn" id="groupBTab">乙組</div>
+                <div class="btn" id="groupCTab">觀摩</div>
             </div>
             <h2 id="groupTitle">教師名單</h2>
             <table id="teacherTable">
@@ -174,116 +48,6 @@
 
     <!-- JsBarcode Library -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-
-    <script>
-        const defaultSchool = "測試學校";
-        let currentGroup = 'A';  // 當前顯示的組別 (甲組)
-
-        // 切換分頁
-        document.getElementById('groupATab').addEventListener('click', () => loadGroupData('A'));
-        document.getElementById('groupBTab').addEventListener('click', () => loadGroupData('B'));
-        document.getElementById('groupCTab').addEventListener('click', () => loadGroupData('C'));
-        document.getElementById('backToTop').addEventListener('click', (e) => {
-    e.preventDefault(); // 阻止默認行為
-    window.scrollTo({
-        top: 0,  // 滾動到最上面
-        behavior: 'smooth'  // 平滑滾動
-    });
-});
-
-        // 載入甲組數據預設
-        loadGroupData('A');
-
-        function loadGroupData(group) {
-            currentGroup = group;
-            const title = group === 'A' ? '甲組、黑客松' : (group === 'B' ? '乙組' : '觀摩');
-            document.getElementById('groupTitle').textContent = `教師名單 (${title})`;
-
-            // 清除現有的數據
-            document.querySelector("#teacherTable tbody").innerHTML = '';
-            document.getElementById("sideLinksList").innerHTML = '';
-
-            // 根據組別載入相應的數據
-            const jsonFile = group === 'A' ? 'groupA.json' : (group === 'B' ? 'groupB.json' : 'groupC.json');
-            fetch(jsonFile)
-                .then(response => response.json())
-                .then(data => {
-                    populateTable(data, group);
-                    populateSideLinks(data, group);
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        }
-
-        // 將資料填充到表格中
-        function populateTable(data, group) {
-    const tbody = document.querySelector("#teacherTable tbody");
-    data.forEach((teacher, index) => {
-        const a1Barcode = teacher["A1觀摩編號"] ? teacher["A1觀摩編號"].toString() : "null";
-        const a2Barcode = teacher["A2競賽編號"] ? teacher["A2競賽編號"].toString() : "null";
-        const bHackathonBarcode = teacher["B黑客松編號"] ? teacher["B黑客松編號"].toString() : "null";
-
-        const row = document.createElement("tr");
-        row.id = `teacher${group}_${index}`;
-        row.innerHTML = `
-            <td>${teacher["恆星位置"]}</td>
-            <td>${teacher["學校"] || defaultSchool}</td>
-            <td>${teacher["教師姓名"]}</td>
-            <td><svg id="barcodeA1_${group}_${index}" class="barcode"></svg></td>
-            <td><svg id="barcodeA2_${group}_${index}" class="barcode"></svg></td>
-            <td><svg id="barcodeBH_${group}_${index}" class="barcode"></svg></td>
-        `;
-        tbody.appendChild(row);
-
-        // 檢查條碼是否存在，若不存在則隱藏該欄位
-        if (a1Barcode === "null") {
-            document.getElementById(`barcodeA1_${group}_${index}`).style.display = 'none';
-        } else {
-            JsBarcode(`#barcodeA1_${group}_${index}`, a1Barcode, {
-                format: "CODE128",
-                width: 2,
-                height: 30
-            });
-        }
-
-        if (a2Barcode === "null") {
-            document.getElementById(`barcodeA2_${group}_${index}`).style.display = 'none';
-        } else {
-            JsBarcode(`#barcodeA2_${group}_${index}`, a2Barcode, {
-                format: "CODE128",
-                width: 2,
-                height: 30
-            });
-        }
-
-        if (bHackathonBarcode === "null") {
-            document.getElementById(`barcodeBH_${group}_${index}`).style.display = 'none';
-        } else {
-            JsBarcode(`#barcodeBH_${group}_${index}`, bHackathonBarcode, {
-                format: "CODE128",
-                width: 2,
-                height: 30
-            });
-        }
-    });
-}
-
-        // 將教師名單顯示在側邊導航欄
-        function populateSideLinks(data, group) {
-            const sideLinks = document.getElementById("sideLinksList");
-            data.forEach((teacher, index) => {
-                const link = document.createElement("a");
-                link.textContent = teacher["教師姓名"];
-                link.href = `#teacher${group}_${index}`;
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.getElementById(`teacher${group}_${index}`).scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'  // 將教師行滾動至畫面中間
-                    });
-                });
-                sideLinks.appendChild(link);
-            });
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
