@@ -225,14 +225,22 @@ td {
     transition: background-color 0.3s ease, border 0.3s ease;
 }
 
+/* 當螢幕寬度小於768px時，使側邊欄始終填滿手機螢幕寬度 */
+@media (max-width: 768px) {
+    .side-links {
+        width: 100%; /* 填滿整個螢幕寬度 */
+        padding: 15px 10px; /* 調整內邊距以適應手機畫面 */
+    }
+}
+
 @media (min-width: 768px) {
     .container {
         flex-direction: row;
     }
 
     .side-links {
-        width: 200px;
-        height: calc(100vh - 60px);
+        width: 200px; /* 桌面版的側邊欄固定寬度 */
+        height: calc(100vh - 60px); /* 側邊欄高度填滿整個螢幕 */
         position: sticky;
         top: 60px;
         overflow-y: auto;
