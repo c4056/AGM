@@ -81,9 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const row = document.createElement("tr");
         row.id = `teacher${group}_${index}`;
 
-        // 確認備註有值且非空字串，否則顯示空白單元格
-        const remarkCellContent = teacher["備註"] && teacher["備註"].trim() !== "" ? teacher["備註"] : "";
-        const remarkCell = `<td>${remarkCellContent}</td>`;
+        // Check if 備註 is null, if so, keep the cell blank
+        const remarkCell = teacher["備註"] !== null ? `<td>${teacher["備註"]}</td>` : `<td></td>`;
 
         row.innerHTML = `
             ${remarkCell}
@@ -96,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         tbody.appendChild(row);
 
-        // 處理條碼顯示和隱藏
         if (a1Barcode === "null") {
             document.getElementById(`barcodeA1_${group}_${index}`).style.display = 'none';
         } else {
@@ -128,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 }
+
 
 
 
