@@ -81,8 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const row = document.createElement("tr");
         row.id = `teacher${group}_${index}`;
 
-        // 如果備註為空則保持空白，否則顯示備註內容
-        const remarkCell = teacher["備註"] ? `<td>${teacher["備註"]}</td>` : `<td></td>`;
+        // 確認備註有值且非空字串，否則顯示空白單元格
+        const remarkCellContent = teacher["備註"] && teacher["備註"].trim() !== "" ? teacher["備註"] : "";
+        const remarkCell = `<td>${remarkCellContent}</td>`;
 
         row.innerHTML = `
             ${remarkCell}
@@ -95,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         tbody.appendChild(row);
 
+        // 處理條碼顯示和隱藏
         if (a1Barcode === "null") {
             document.getElementById(`barcodeA1_${group}_${index}`).style.display = 'none';
         } else {
@@ -126,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 }
+
 
 
     // 將資料填充到側邊導航欄
